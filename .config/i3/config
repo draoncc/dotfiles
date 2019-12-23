@@ -1,0 +1,214 @@
+# Default config for sway
+#
+# Copy this to ~/.config/sway/config and edit it to your liking.
+#
+# Read `man 5 sway` for a complete reference.
+
+### Variables
+#
+# Logo key. Use Mod1 for Alt.
+set $mod Mod4
+# Home row direction keys, like vim
+set $left h
+set $down t
+set $up n
+set $right s
+# Your preferred terminal emulator
+set $term termite
+# Your preferred application launcher
+set $menu dmenu_run -fn 'Noto Mono for Powerline-13'
+set $resolution 1920x1080
+
+### Key bindings
+#
+# Basics:
+#
+    # start a terminal
+    bindsym $mod+Return exec $term
+
+    # kill focused window
+    bindsym $mod+Shift+semicolon kill
+
+    # start your launcher
+    bindsym $mod+e exec $menu
+
+    # Drag floating windows by holding down $mod and left mouse button.
+    # Resize them with right mouse button + $mod.
+    # Despite the name, also works for non-floating windows.
+    # Change normal to inverse to use left mouse button for resizing and right
+    # mouse button for dragging.
+    floating_modifier $mod
+
+    # reload the configuration file
+    bindsym $mod+Shift+j reload
+
+    # exit sway (logs you out of your wayland session)
+    bindsym $mod+Shift+period exit
+#
+# Moving around:
+#
+    # Move your focus around
+    bindsym $mod+$left focus left
+    bindsym $mod+$down focus down
+    bindsym $mod+$up focus up
+    bindsym $mod+$right focus right
+    # or use $mod+[up|down|left|right]
+    bindsym $mod+Left focus left
+    bindsym $mod+Down focus down
+    bindsym $mod+Up focus up
+    bindsym $mod+Right focus right
+
+    # _move_ the focused window with the same, but add Shift
+    bindsym $mod+Shift+$left move left
+    bindsym $mod+Shift+$down move down
+    bindsym $mod+Shift+$up move up
+    bindsym $mod+Shift+$right move right
+    # ditto, with arrow keys
+    bindsym $mod+Shift+Left move left
+    bindsym $mod+Shift+Down move down
+    bindsym $mod+Shift+Up move up
+    bindsym $mod+Shift+Right move right
+#
+# Workspaces:
+#
+    # switch to workspace
+    bindsym $mod+ampersand workspace 1
+    bindsym $mod+bracketleft workspace 2
+    bindsym $mod+braceleft workspace 3
+    bindsym $mod+braceright workspace 4
+    bindsym $mod+parenleft workspace 5
+    bindsym $mod+equal workspace 6
+    bindsym $mod+asterisk workspace 7
+    bindsym $mod+parenright workspace 8
+    bindsym $mod+plus workspace 9
+    bindsym $mod+bracketright workspace 10
+
+    # move focused container to workspace
+    bindsym $mod+Shift+ampersand move container to workspace 1
+    bindsym $mod+Shift+bracketleft move container to workspace 2
+    bindsym $mod+Shift+braceleft move container to workspace 3
+    bindsym $mod+Shift+braceright move container to workspace 4
+    bindsym $mod+Shift+1 move container to workspace 5
+    bindsym $mod+Shift+9 move container to workspace 6
+    bindsym $mod+Shift+0 move container to workspace 7
+    bindsym $mod+Shift+2 move container to workspace 8
+    bindsym $mod+Shift+4 move container to workspace 9
+    bindsym $mod+Shift+bracketright move container to workspace 10
+
+    # Note: workspaces can have any name you want, not just numbers.
+    # We just use 1-10 as the default.
+#
+# Layout stuff:
+#
+    # You can "split" the current object of your focus with
+    # $mod+b or $mod+v, for horizontal and vertical splits
+    # respectively.
+    bindsym $mod+d splith
+    bindsym $mod+k splitv
+
+    # Switch the current container between different layout styles
+    bindsym $mod+o layout stacking
+    bindsym $mod+comma layout tabbed
+    bindsym $mod+period layout toggle split
+
+    # Make the current focus fullscreen
+    bindsym $mod+u fullscreen
+
+    # Toggle the current focus between tiling and floating mode
+    bindsym $mod+Shift+space floating toggle
+
+    # Swap focus between the tiling area and the floating area
+    bindsym $mod+space focus mode_toggle
+
+    # move focus to the parent container
+    bindsym $mod+a focus parent
+#
+# Scratchpad:
+#
+    # Sway has a "scratchpad", which is a bag of holding for windows.
+    # You can send windows there and get them back later.
+
+    # Move the currently focused window to the scratchpad
+    bindsym $mod+Shift+minus move scratchpad
+
+    # Show the next scratchpad window or hide the focused scratchpad window.
+    # If there are multiple scratchpad windows, this command cycles through them.
+    bindsym $mod+minus scratchpad show
+#
+# Resizing containers:
+#
+mode "resize" {
+    # left will shrink the containers width
+    # right will grow the containers width
+    # up will shrink the containers height
+    # down will grow the containers height
+    bindsym $left resize shrink width 10 px or 10 ppt
+    bindsym $down resize grow height 10 px or 10 ppt
+    bindsym $up resize shrink height 10 px or 10 ppt
+    bindsym $right resize grow width 10 px or 10 ppt
+
+    # ditto, with arrow keys
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
+
+    # return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+p mode "resize"
+
+### Font
+#
+# Font for window titles. Will also be used by the bar unless a different font
+# is used in the bar {} block below.
+font pango:Noto Mono for Powerline 11
+
+### Gaps
+#
+gaps inner 12
+gaps outer -12
+smart_gaps on
+smart_borders on
+hide_edge_borders none
+
+### Status Bar
+#
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+        i3bar_command i3bar -t
+        font pango:Noto Mono for Powerline, Material Icons Regular for inline 13
+        status_command i3status-rs $HOME/.config/i3/status.toml
+        tray_output primary
+        colors {
+              separator #00000000
+              background #00000000
+              statusline #00000000
+              focused_workspace #82aaff #82aaff #37474f
+              active_workspace #26323854 #26323854  #eeffff54
+              inactive_workspace #26323854 #26323854  #eeffff54
+              urgent_workspace #ff5370 #ff5370 #37474f
+        }
+}
+
+client.focused #82aaff #82aaff #37474f #c3e88d #82aaff
+client.focused_inactive #263238 #263238 #eeffff #263238 #263238
+client.unfocused #151515cc #151515cc #00000000 #151515cc #151515cc
+client.urgent #ff5370 #ff5370 #37474f #c3e88d #ff5370
+
+# 
+# Manually added user config
+#
+focus_follows_mouse no
+new_window pixel 2
+
+no_focus [window_role="pop-up"]
+
+### Composer
+#
+exec --no-startup-id compton --config $HOME/.config/i3/compton.conf -b
+
+### Wallpaper
+#
+exec --no-startup-id "sh -c 'sleep .2; feh --bg-fill $HOME/Downloads/wallpaper.jpg'"
