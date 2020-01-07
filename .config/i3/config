@@ -14,7 +14,7 @@ set $menu "rofi -combi-modi window,drun -show combi -modi combi"
 # Your preferred lockscreen utility
 set $screenlock "run-xsecurelock.sh"
 # Your preferred calculator
-set $calc "rofi -show calc -modi calc -no-show-match -no-sort"
+set $calc "run-rofi-calc.sh"
 
 ### Key bindings
 #
