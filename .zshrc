@@ -33,14 +33,9 @@ export EDITOR="nvim"
 export PROMPT="%{%}%2c %B%F{blue}>%f%b %{%}"
 export TERM="xterm-256color"
 
-# PATH
-export PATH="$PATH:$HOME/bin"
-export PATH="$PATH:$HOME/.cargo/bin"
-export PATH="$PATH:$HOME/.local/bin"
-
 # Aliases
-alias tg="$HOME/Downloads/Telegram/Telegram -workdir $HOME/.tdata"
 alias e="nvim"
+alias p="gopass"
 alias ls="LC_COLLATE=C ls --color=auto --group-directories-first"
 alias ll="ls -l"
 alias la="ll -a"

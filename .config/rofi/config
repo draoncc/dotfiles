@@ -1,0 +1,3 @@
+rofi.modi:       window,run,ssh,drun,combi,calc
+rofi.combi-modi: window,drun
+rofi.theme:      /home/cino/.local/share/rofi/themes/material.rasi
