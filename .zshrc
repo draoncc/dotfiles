@@ -29,10 +29,6 @@ unsetopt beep nomatch
 bindkey -v
 # End of lines configured by zsh-newuser-install
 
-export EDITOR="nvim"
-export PROMPT="%{%}%2c %B%F{blue}>%f%b %{%}"
-export TERM="xterm-256color"
-
 # Aliases
 alias e="nvim"
 alias p="gopass"
