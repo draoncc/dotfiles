@@ -1,48 +1,56 @@
 [theme]
-name         = "plain"
+name            = "plain"
 [theme.overrides]
-idle_bg      = "#263238"
-idle_fg      = "#eeffff"
-info_bg      = "#82aaff"
-info_fg      = "#37474f"
-good_bg      = "#c3e88d"
-good_fg      = "#37474f"
-warning_bg   = "#f78c6c"
-warning_fg   = "#37474f"
-critical_bg  = "#ff5370"
-critical_fg  = "#37474f"
-separator    = ""
+idle_bg         = "#263238"
+idle_fg         = "#eeffff"
+info_bg         = "#82aaff"
+info_fg         = "#37474f"
+good_bg         = "#c3e88d"
+good_fg         = "#37474f"
+warning_bg      = "#f78c6c"
+warning_fg      = "#37474f"
+critical_bg     = "#ff5370"
+critical_fg     = "#37474f"
+separator       = ""
 [icons]
-name         = "none"
+name            = "none"
 
 [[block]]
-block        = "disk_space"
-path         = "/"
-alias        = "/"
-info_type    = "available"
-unit         = "GB"
-interval     = 20
+block           = "disk_space"
+path            = "/"
+alias           = "/"
+info_type       = "available"
+unit            = "GB"
+interval        = 20
 
 [[block]]
-block        = "cpu"
-interval     = 1
+block           = "net"
+device          = "wlp59s0"
+ssid            = true
+signal_strength = true
+speed_up        = false
+hide_missing    = true
 
 [[block]]
-block        = "memory"
-display_type = "memory"
-format_mem   = "{Mup}%"
-format_swap  = "{SUp}%"
+block           = "cpu"
+interval        = 1
 
 [[block]]
-block        = "load"
-interval     = 1
-format       = "{1m}"
+block           = "memory"
+display_type    = "memory"
+format_mem      = "{Mup}%"
+format_swap     = "{SUp}%"
 
 [[block]]
-block        = "battery"
-interval     = 10
+block           = "load"
+interval        = 1
+format          = "{1m}"
 
 [[block]]
-block        = "time"
-interval     = 60
-format       = "%a %d. %b %R"
+block           = "battery"
+interval        = 10
+
+[[block]]
+block           = "time"
+interval        = 60
+format          = "%a %d. %b %R"

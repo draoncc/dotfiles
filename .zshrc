@@ -20,6 +20,10 @@ compinit -C
 
 autoload -U +X bashcompinit && bashcompinit
 
+# Make sure meta-delete is bash-style
+autoload -U select-word-style
+select-word-style bash
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=10000
@@ -50,3 +54,11 @@ bindkey '^[OB' history-substring-search-down
 bindkey '^[[1;5C' forward-word
 bindkey '^[[1;5D' backward-word
 bindkey '^H' backward-kill-word
+
+# Allow running commands without exiting interactive mode upon execution completion
+if [[ $1 == eval ]]; then
+  "$@"
+  set --
+fi
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
