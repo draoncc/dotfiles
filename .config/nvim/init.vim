@@ -85,6 +85,9 @@ set laststatus=2
 set noshowmode
 let g:lightline = {
       \ 'colorscheme': 'one',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ], [ 'readonly', 'relativepath', 'modified' ] ]
+      \ }
       \ }
 
 " Configure vim-go (see https://github.com/fatih/vim-go)
