@@ -1,3 +1,4 @@
+# i3 config file (v4)
 ### Variables
 #
 # Logo key. Use Mod1 for Alt.
@@ -35,7 +36,7 @@ set $scap "rofi-screenshot"
     bindsym $mod+c exec $calc
 
     # screen capture
-    bindsym $mod+Shift+s exec $scap
+    bindsym $mod+Control+s exec $scap
 
     # kill focused window
     bindsym $mod+Shift+semicolon kill
