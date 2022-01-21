@@ -28,10 +28,12 @@ select-word-style bash
 HISTFILE=~/.histfile
 HISTSIZE=10000
 SAVEHIST=10000
-setopt appendhistory autocd extendedglob
+setopt appendhistory autocd extendedglob histignorespace
 unsetopt beep nomatch
 bindkey -v
 # End of lines configured by zsh-newuser-install
+
+setopt share_history
 
 # Aliases
 alias e="nvim"
@@ -41,6 +43,14 @@ alias ll="ls -l"
 alias la="ll -a"
 alias tar-gz="tar -xvzf"
 alias zsh-plug-install="antibody bundle < $HOME/.zsh_plugins > $HOME/.zsh_plugins.sh"
+
+alias tg="terragrunt"
+alias tgi="tg init"
+alias tgp="tg plan"
+alias tga="tg apply"
+alias tgai="tg run-all init"
+alias tgap="tg run-all plan"
+alias tgaa="tg run-all apply"
 
 # Plugins
 source "$HOME/.zsh_plugins.sh"
@@ -60,5 +70,3 @@ if [[ $1 == eval ]]; then
   "$@"
   set --
 fi
-
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
