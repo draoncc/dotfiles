@@ -10,22 +10,46 @@ endif
 "
 "
 call plug#begin()
-Plug 'Shougo/deoplete.nvim', {'do':':UpdateRemotePlugins'} " Asynchronous keyword completion
-"Plug 'zchee/deoplete-go', {'do':'make'}
-"Plug 'fatih/vim-go', {'do':':GoUpdateBinaries'}            " Go bindings for vim
+"Plug 'fatih/vim-go', {'do':':GoUpdateBinaries'}     " Go bindings for vim
+Plug 'Shougo/vimproc.vim', {'do':'make'}
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " Fuzzy file finder
+Plug 'junegunn/fzf.vim'
 
+" Core
 Plug 'w0rp/ale'                          " Asynchronous Linting Engine
-Plug 'mhinz/vim-grepper'                 " Asonchronous grepper
+Plug 'mhinz/vim-grepper'                 " Asynchronous grepper
 Plug 'itchyny/lightline.vim'             " Statusbar replacement
 Plug 'kaicataldo/material.vim'           " Material colorscheme
 Plug 'ctrlpvim/ctrlp.vim'                " Fuzzy finder
-Plug 'vim-scripts/Vimball'               " Support for creating, extracting and listing
-                                         " vimball archives (*.vba)
+Plug 'vim-scripts/Vimball'               " Support for creating, extracting and
+                                         " listing vimball archives (*.vba)
 Plug 'vim-scripts/auto-pairs-gentle'     " Gentle version of automatic parens
+
+" Autocompletion
+Plug 'Shougo/ddc.vim'         " Asynchronous keyword completion
+Plug 'vim-denops/denops.vim'  " Deno engine
+Plug 'vim-denops/denops-helloworld.vim'
+Plug 'Shougo/ddc-around'
+Plug 'Shougo/ddc-omni'
+Plug 'Shougo/ddc-nvim-lsp'
+Plug 'neovim/nvim-lspconfig'
+Plug 'tani/ddc-path'
+Plug 'tani/ddc-fuzzy'
+Plug 'matsui54/ddc-buffer'
+
+Plug 'Shougo/pum.vim'         " Original popup menu completion
+Plug 'matsui54/denops-popup-preview.vim'
+
+" Linters, formatters & fixers
+Plug 'nvie/vim-flake8'                   " Python
+Plug 'fatih/vim-hclfmt'                  " HCL
+
+" IDEs
+Plug 'Quramy/tsuquyomi'
 
 " Syntax highlighting plugins
 Plug 'ekalinin/Dockerfile.vim'           " Dockerfile
-Plug 'hashivim/vim-terraform'            " Terraform
+Plug 'hashivim/vim-hashicorp-tools'      " Hashistack, Terraform, etc.
 Plug 'garyharan/vim-proto'               " ProtoBuf
 Plug 'pangloss/vim-javascript'           " JS ES6
 Plug 'posva/vim-vue'                     " Vue.js components
@@ -36,6 +60,7 @@ Plug 'dart-lang/dart-vim-plugin'         " Dart
 Plug 'vmchale/dhall-vim'                 " Dhall
 Plug 'jvirtanen/vim-hcl'                 " HashiCorp HCL
 Plug 'cespare/vim-toml'                  " TOML
+Plug 'mustache/vim-mustache-handlebars'  " Handlebars
 
 " Snippets
 Plug 'Shougo/neosnippet.vim'             " Snippet support
@@ -74,13 +99,17 @@ set undofile              " Persistent undo files
 set undodir=$HOME/.config/nvim/undo
 set showcmd               " Show what is being typed
 set colorcolumn=80        " Highlight lines over 80 chars long
+set omnifunc=syntaxcomplete#Complete
 
 "
 "
 " PLUGIN CONFIG
 " 
 "
-" Lightline lightline LIGHTLINE
+
+"
+" Lightline
+"
 set laststatus=2
 set noshowmode
 let g:lightline = {
@@ -102,25 +131,28 @@ let g:lightline = {
 "let g:go_list_type = "quickfix"          " Open quickfix instead of location list
 "let g:go_autodetect_gopath = 1           " Automatically detect gopath
 
-" Ale ale ALE
+"
+" ALE
+"
 " :ALELint
 let g:ale_linters = {
-\   'javascript': ['standard'],
-\   'typescript': ['tslint'],
+\   'javascript': ['eslint'],
+\   'typescript': ['eslint'],
 \}
 
 " :ALEFix.
 let g:ale_fixers = {
-\   'javascript': ['prettier', 'standard'],
-\   'typescript': ['prettier', 'tslint'],
+\   'javascript': ['prettier', 'eslint'],
+\   'typescript': ['prettier', 'eslint'],
 \   'html': ['prettier'],
+\   'vue': ['prettier'],
 \}
 
 " Overwrite fixing and linting for .ts files
 let g:ale_pattern_options = {
 \   '.*\.tsx\?$': {
-\     'ale_linters': ['tslint'],
-\     'ale_fixers': ['prettier', 'tslint'],
+\     'ale_linters': ['eslint'],
+\     'ale_fixers': ['prettier', 'eslint'],
 \   },
 \}
 
@@ -130,22 +162,61 @@ let g:ale_fix_on_save = 1
 let g:ale_set_loclist = 0
 let g:ale_set_quickfix = 0
 
+"
+" ddc
+"
+lua << EOF
+require'lspconfig'.tsserver.setup{}
+EOF
+
+call ddc#custom#patch_global('completionMenu', 'pum.vim')
+call ddc#custom#patch_global('autoCompleteEvents',
+\   ['InsertEnter', 'TextChangedI', 'TextChangedP', 'CmdlineChanged'])
+
+call ddc#custom#patch_global('sources',
+\   ['nvim-lsp', 'around', 'buffer']) " ddc-path, omni
+call ddc#custom#patch_global('sourceOptions', {
+\   '_': {
+\     'matchers': ['matcher_fuzzy'],
+\     'sorters': ['sorter_fuzzy'],
+\     'converters': ['converter_fuzzy'] },
+\   'around': { 'mark': 'A' },
+\   'omni': { 'mark': 'O' },
+\   'buffer': { 'mark': 'B' },
+\   'nvim-lsp': {
+\     'mark': 'lsp',
+\     'forceCompletionPattern': '\.\w*|:\w*|->\w*' },
+\ })
+call ddc#custom#patch_global('sourceParams', {
+\   'path': { 'mark': 'P', 'cmd': ['find', '-maxdepth', '5'] },
+\   'around': { 'maxSize': 500 },
+\   'buffer': {
+\     'requireSameFiletype': v:false,
+\     'limitBytes': 5000000,
+\     'fromAltBuf': v:true,
+\     'forceCollect': v:true },
+\   'nvim-lsp': { 'kindLabels': { 'Class': 'c' } },
+\ })
+
+"
 " Gentle auto pairs
+"
 let g:AutoPairsUseInsertedCount = 1
 
-" Autocompletion
-set completeopt+=noinsert " neocomplete like
-set completeopt+=noselect " deoplete.nvim recommend
-set completeopt-=preview  " don't need preview
-let g:deoplete#enable_at_startup = 1
-"let g:deoplete#sources#go#gocode_binary = $GOPATH.'/bin/gocode'
+"
+" neosnippet
+"
+let g:neosnippet#enable_snipmate_compatibility = 1 " Enable snipMate compatibility feature.
 
+"
 " Other
+"
 autocmd BufNewFile,BufRead *.slim setlocal filetype=slim " Fix vim-slim html override
 autocmd BufNewFile,BufRead *.slm setlocal filetype=slm   " Fix vim-slm html override
 
-" neosnippet
-let g:neosnippet#enable_snipmate_compatibility = 1 " Enable snipMate compatibility feature.
+" Don't fmt .tf and .nomad files on save
+let g:tf_fmt_autosave = 0
+let g:nomad_fmt_autosave = 0
 
 "
 "
@@ -168,6 +239,10 @@ vnoremap <Leader>y :write !xsel -i -b<CR><CR>
 "nnoremap <M-;> <C-W>q
 "nnoremap <M-S-j> :<C-U>exec 'source '.$HOME.'/.config/nvim/init.vim'<CR>
 
+" FZF
+nmap <C-e> :FZF<CR>
+nmap <C-a> :Ag<CR>
+
 " ALE
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
@@ -180,9 +255,24 @@ nnoremap <Leader>* :Grepper -tool ag -cword -noprompt<CR>
 nmap gs <Plug>(GrepperOperator)
 xmap gs <Plug>(GrepperOperator)
 
-" deoplete
-" Use tap for cycling completion when completion window is open.
-inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+" ddc
+" <TAB>: completion.
+inoremap <silent><expr> <TAB>
+\ ddc#map#pum_visible() ? '<C-n>' :
+\ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
+\ '<TAB>' : ddc#map#manual_complete()
+" <S-TAB>: completion back.
+inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
+
+" pum.vim
+inoremap <Tab>   <Cmd>call pum#map#insert_relative(+1)<CR>
+inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
+inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
+inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
+inoremap <C-y>   <Cmd>call pum#map#confirm()<CR>
+inoremap <C-e>   <Cmd>call pum#map#cancel()<CR>
+inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
+inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
 
 " neosnippet
 " Note: It must be "imap" and "smap".  It uses <Plug> mappings.
@@ -251,3 +341,11 @@ nmap <silent> [F :<C-U>exe 'll'.v:count1<CR>zv
 "  autocmd FileType go nmap <Leader>i <Plug>(go-info)
 "  autocmd FileType go nmap <Leader>e <Plug>(go-rename)
 "augroup END
+
+"
+"
+" FINALIZE
+"
+"
+call popup_preview#enable()
+call ddc#enable()
