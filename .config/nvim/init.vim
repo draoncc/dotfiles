@@ -10,7 +10,6 @@ endif
 "
 "
 call plug#begin()
-"Plug 'fatih/vim-go', {'do':':GoUpdateBinaries'}     " Go bindings for vim
 Plug 'Shougo/vimproc.vim', {'do':'make'}
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " Fuzzy file finder
 Plug 'junegunn/fzf.vim'
@@ -26,12 +25,13 @@ Plug 'vim-scripts/Vimball'               " Support for creating, extracting and
 Plug 'vim-scripts/auto-pairs-gentle'     " Gentle version of automatic parens
 
 " Autocompletion
-Plug 'Shougo/ddc.vim'         " Asynchronous keyword completion
-Plug 'vim-denops/denops.vim'  " Deno engine
+Plug 'vim-denops/denops.vim'   " Deno engine
 Plug 'vim-denops/denops-helloworld.vim'
-Plug 'Shougo/ddc-around'
-Plug 'Shougo/ddc-omni'
-Plug 'Shougo/ddc-nvim-lsp'
+Plug 'Shougo/ddc.vim'           " Asynchronous keyword completion
+Plug 'Shougo/ddc-ui-native'
+Plug 'Shougo/ddc-source-around'
+Plug 'Shougo/ddc-source-omni'
+Plug 'Shougo/ddc-source-nvim-lsp'
 Plug 'neovim/nvim-lspconfig'
 Plug 'tani/ddc-path'
 Plug 'tani/ddc-fuzzy'
@@ -41,38 +41,27 @@ Plug 'Shougo/pum.vim'         " Original popup menu completion
 Plug 'matsui54/denops-popup-preview.vim'
 
 " Linters, formatters & fixers
+Plug 'psf/black', { 'branch': 'stable' } " Python
 Plug 'nvie/vim-flake8'                   " Python
-Plug 'fatih/vim-hclfmt'                  " HCL
+Plug 'hashivim/vim-hashicorp-tools'
 
 " IDEs
 Plug 'Quramy/tsuquyomi'
 
-" Syntax highlighting plugins
-Plug 'ekalinin/Dockerfile.vim'           " Dockerfile
-Plug 'hashivim/vim-hashicorp-tools'      " Hashistack, Terraform, etc.
-Plug 'garyharan/vim-proto'               " ProtoBuf
-Plug 'pangloss/vim-javascript'           " JS ES6
-Plug 'posva/vim-vue'                     " Vue.js components
-Plug 'mxw/vim-jsx'                       " React JSX
-Plug 'HerringtonDarkholme/yats.vim'      " TypeScript
-Plug 'jparise/vim-graphql'               " GraphQL
-Plug 'dart-lang/dart-vim-plugin'         " Dart
-Plug 'vmchale/dhall-vim'                 " Dhall
-Plug 'jvirtanen/vim-hcl'                 " HashiCorp HCL
-Plug 'cespare/vim-toml'                  " TOML
-Plug 'mustache/vim-mustache-handlebars'  " Handlebars
+" Syntax highlighting
+Plug 'sheerun/vim-polyglot'
 
 " Snippets
-Plug 'Shougo/neosnippet.vim'             " Snippet support
-Plug 'Shougo/neosnippet-snippets'        " Standard snippets for neosnippet
-Plug 'isRuslan/vim-es6'                  " JS ES6 snippets
-Plug 'mhartington/vim-angular2-snippets' " Angular 2 snippets for neosnippet
+"Plug 'Shougo/neosnippet.vim'             " Snippet support
+"Plug 'Shougo/neosnippet-snippets'        " Standard snippets for neosnippet
+"Plug 'isRuslan/vim-es6'                  " JS ES6 snippets
+"Plug 'mhartington/vim-angular2-snippets' " Angular 2 snippets for neosnippet
 call plug#end()
 
 "
 "
 " COLORS
-" 
+"
 "
 let g:material_theme_style = 'darker'
 let g:material_terminal_italics = 1
@@ -101,10 +90,16 @@ set showcmd               " Show what is being typed
 set colorcolumn=80        " Highlight lines over 80 chars long
 set omnifunc=syntaxcomplete#Complete
 
+lua << EOF
+require'lspconfig'.tsserver.setup{}
+require'lspconfig'.terraformls.setup{}
+require'lspconfig'.pyright.setup{}
+EOF
+
 "
 "
 " PLUGIN CONFIG
-" 
+"
 "
 
 "
@@ -119,44 +114,33 @@ let g:lightline = {
       \ }
       \ }
 
-" Configure vim-go (see https://github.com/fatih/vim-go)
-"let g:go_highlight_functions = 1         " Nicer syntax highligting
-"let g:go_highlight_methods = 1
-"let g:go_highlight_types = 1
-"let g:go_highlight_operators = 1
-"let g:go_highlight_build_constraints = 1
-"let g:go_highlight_extra_types = 1
-"let g:go_highlight_generate_tags = 1
-"let g:go_fmt_command = "goimports"       " Automatically import on save
-"let g:go_list_type = "quickfix"          " Open quickfix instead of location list
-"let g:go_autodetect_gopath = 1           " Automatically detect gopath
-
 "
 " ALE
 "
-" :ALELint
 let g:ale_linters = {
 \   'javascript': ['eslint'],
 \   'typescript': ['eslint'],
+\   'dhall': ['dhall-lint'],
 \}
 
-" :ALEFix.
 let g:ale_fixers = {
+\   '*': ['remove_trailing_lines', 'trim_whitespace'],
+\   'python': ['black'],
 \   'javascript': ['prettier', 'eslint'],
 \   'typescript': ['prettier', 'eslint'],
 \   'html': ['prettier'],
 \   'vue': ['prettier'],
+\   'dhall': ['dhall-format'],
+\   'sh': ['shfmt'],
 \}
 
-" Overwrite fixing and linting for .ts files
 let g:ale_pattern_options = {
-\   '.*\.tsx\?$': {
-\     'ale_linters': ['eslint'],
-\     'ale_fixers': ['prettier', 'eslint'],
+\   '.*\.tf$': {
+\     'ale_linters': ['terraform'],
+\     'ale_fixers': ['terraform'],
 \   },
 \}
 
-" Fix files automatically on save
 let g:ale_fix_on_save = 1
 
 let g:ale_set_loclist = 0
@@ -165,11 +149,7 @@ let g:ale_set_quickfix = 0
 "
 " ddc
 "
-lua << EOF
-require'lspconfig'.tsserver.setup{}
-EOF
-
-call ddc#custom#patch_global('completionMenu', 'pum.vim')
+call ddc#custom#patch_global('ui', 'native')
 call ddc#custom#patch_global('autoCompleteEvents',
 \   ['InsertEnter', 'TextChangedI', 'TextChangedP', 'CmdlineChanged'])
 
@@ -213,10 +193,8 @@ let g:neosnippet#enable_snipmate_compatibility = 1 " Enable snipMate compatibili
 "
 autocmd BufNewFile,BufRead *.slim setlocal filetype=slim " Fix vim-slim html override
 autocmd BufNewFile,BufRead *.slm setlocal filetype=slm   " Fix vim-slm html override
-
-" Don't fmt .tf and .nomad files on save
-let g:tf_fmt_autosave = 0
-let g:nomad_fmt_autosave = 0
+autocmd BufNewFile,BufRead *.hcl,*.nomad set syntax=hcl
+autocmd BufNewFile,BufRead *.tf set syntax=terraform
 
 "
 "
@@ -258,21 +236,12 @@ xmap gs <Plug>(GrepperOperator)
 " ddc
 " <TAB>: completion.
 inoremap <silent><expr> <TAB>
-\ ddc#map#pum_visible() ? '<C-n>' :
+\ pumvisible() ? '<C-n>' :
 \ (col('.') <= 1 <Bar><Bar> getline('.')[col('.') - 2] =~# '\s') ?
 \ '<TAB>' : ddc#map#manual_complete()
-" <S-TAB>: completion back.
-inoremap <expr><S-TAB>  ddc#map#pum_visible() ? '<C-p>' : '<C-h>'
 
-" pum.vim
-inoremap <Tab>   <Cmd>call pum#map#insert_relative(+1)<CR>
-inoremap <S-Tab> <Cmd>call pum#map#insert_relative(-1)<CR>
-inoremap <C-n>   <Cmd>call pum#map#insert_relative(+1)<CR>
-inoremap <C-p>   <Cmd>call pum#map#insert_relative(-1)<CR>
-inoremap <C-y>   <Cmd>call pum#map#confirm()<CR>
-inoremap <C-e>   <Cmd>call pum#map#cancel()<CR>
-inoremap <PageDown> <Cmd>call pum#map#insert_relative_page(+1)<CR>
-inoremap <PageUp>   <Cmd>call pum#map#insert_relative_page(-1)<CR>
+" <S-TAB>: completion back.
+inoremap <expr><S-TAB>  pumvisible() ? '<C-p>' : '<C-h>'
 
 " neosnippet
 " Note: It must be "imap" and "smap".  It uses <Plug> mappings.
@@ -291,7 +260,7 @@ smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
 
 " For conceal markers.
 if has('conceal')
-  set conceallevel=2 concealcursor=niv
+  set conceallevel=0 concealcursor=niv
 endif
 
 " https://github.com/tpope/vim-unimpaired/blob/master/plugin/unimpaired.vim

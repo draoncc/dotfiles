@@ -19,6 +19,8 @@ set $calc "run-rofi-calc.sh"
 # Your preferred screen capture tool
 set $scap "rofi-screenshot"
 
+set $emoji "rofimoji"
+
 ### Key bindings
 #
 # Basics:
@@ -37,6 +39,9 @@ set $scap "rofi-screenshot"
 
     # screen capture
     bindsym $mod+Control+s exec $scap
+
+    # emoji picker
+    bindsym $mod+v exec --no-startup-id $emoji
 
     # kill focused window
     bindsym $mod+Shift+semicolon kill
@@ -206,7 +211,7 @@ client.focused_inactive #263238 #263238 #eeffff #263238 #263238
 client.unfocused #151515cc #151515cc #00000000 #151515cc #151515cc
 client.urgent #ff5370 #ff5370 #37474f #c3e88d #ff5370
 
-# 
+#
 # Manually added user config
 #
 focus_follows_mouse no
